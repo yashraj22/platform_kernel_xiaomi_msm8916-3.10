@@ -67,7 +67,8 @@ static struct vfsmount *shm_mnt;
 #include <linux/seq_file.h>
 #include <linux/syscalls.h>
 #include <linux/magic.h>
-//#include <linux/fcntl.h>
+
+#include <linux/fcntl.h>
 #include <uapi/linux/memfd.h>
 
 #include <asm/uaccess.h>
@@ -1892,13 +1893,14 @@ static loff_t shmem_file_llseek(struct file *file, loff_t offset, int whence)
 	return offset;
 }
 
+
 /*
  * We need a tag: a new tag would expand every radix_tree_node by 8 bytes,
  * so reuse a tag which we firmly believe is never set or cleared on shmem.
  */
 #define SHMEM_TAG_PINNED        PAGECACHE_TAG_TOWRITE
 #define LAST_SCAN               4       /* about 150ms max */
-
+/* olddd
 static void shmem_tag_pins(struct address_space *mapping)
 {
 	struct radix_tree_iter iter;
@@ -1932,6 +1934,7 @@ restart:
 	}
 	rcu_read_unlock();
 }
+*/
 
 /*
  * Setting SEAL_WRITE requires us to verify there's no pending writer. However,
@@ -1941,7 +1944,7 @@ restart:
  * them to be dropped.
  * The caller must guarantee that no new user will acquire writable references
  * to those pages to avoid races.
- */
+ *
 static int shmem_wait_for_pins(struct address_space *mapping)
 {
 	struct radix_tree_iter iter;
@@ -1985,7 +1988,7 @@ restart:
 				 * On the last scan, we clean up all those tags
 				 * we inserted; but make a note that we still
 				 * found pages pinned.
-				 */
+				 */ /*
 				error = -EBUSY;
 			}
 
@@ -2005,6 +2008,11 @@ continue_resched:
 	}
 
 	return error;
+*/
+static int shmem_wait_for_pins(struct address_space *mapping)
+{
+	return 0;
+
 }
 
 #define F_ALL_SEALS (F_SEAL_SEAL | \
