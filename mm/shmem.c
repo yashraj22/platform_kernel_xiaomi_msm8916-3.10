@@ -1900,7 +1900,7 @@ static loff_t shmem_file_llseek(struct file *file, loff_t offset, int whence)
  */
 #define SHMEM_TAG_PINNED        PAGECACHE_TAG_TOWRITE
 #define LAST_SCAN               4       /* about 150ms max */
-/* olddd
+
 static void shmem_tag_pins(struct address_space *mapping)
 {
 	struct radix_tree_iter iter;
@@ -1926,15 +1926,18 @@ restart:
 		}
 
 		if (need_resched()) {
+/*
 			rcu_read_unlock();
 			rcu_read_lock();
+*/
+			cond_resched_rcu();
+
 			start = iter.index + 1;
 			goto restart;
 		}
 	}
 	rcu_read_unlock();
 }
-*/
 
 /*
  * Setting SEAL_WRITE requires us to verify there's no pending writer. However,
@@ -2008,10 +2011,74 @@ continue_resched:
 	}
 
 	return error;
-*/
+
 static int shmem_wait_for_pins(struct address_space *mapping)
 {
 	return 0;
+
+ */
+static int shmem_wait_for_pins(struct address_space *mapping)
+{
+	struct radix_tree_iter iter;
+	void **slot;
+	pgoff_t start;
+	struct page *page;
+	int error, scan;
+
+	shmem_tag_pins(mapping);
+
+	error = 0;
+	for (scan = 0; scan <= LAST_SCAN; scan++) {
+		if (!radix_tree_tagged(&mapping->page_tree, SHMEM_TAG_PINNED))
+			break;
+
+		if (!scan)
+			lru_add_drain_all();
+		else if (schedule_timeout_killable((HZ << scan) / 200))
+			scan = LAST_SCAN;
+
+		start = 0;
+		rcu_read_lock();
+restart:
+		radix_tree_for_each_tagged(slot, &mapping->page_tree, &iter,
+					   start, SHMEM_TAG_PINNED) {
+
+			page = radix_tree_deref_slot(slot);
+			if (radix_tree_exception(page)) {
+				if (radix_tree_deref_retry(page))
+					goto restart;
+
+				page = NULL;
+			}
+
+			if (page &&
+			    page_count(page) - page_mapcount(page) != 1) {
+				if (scan < LAST_SCAN)
+					goto continue_resched;
+
+				/*
+				 * On the last scan, we clean up all those tags
+				 * we inserted; but make a note that we still
+				 * found pages pinned.
+				 */
+				error = -EBUSY;
+			}
+
+			spin_lock_irq(&mapping->tree_lock);
+			radix_tree_tag_clear(&mapping->page_tree,
+					     iter.index, SHMEM_TAG_PINNED);
+			spin_unlock_irq(&mapping->tree_lock);
+continue_resched:
+			if (need_resched()) {
+				cond_resched_rcu();
+				start = iter.index + 1;
+				goto restart;
+			}
+		}
+		rcu_read_unlock();
+	}
+
+	return error;
 
 }
 
