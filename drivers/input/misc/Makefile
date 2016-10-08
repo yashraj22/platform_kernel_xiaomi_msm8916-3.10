@@ -115,4 +115,4 @@ endif
 #obj-$(CONFIG_SENSORS_ST480)  += st480.o
 
 obj-$(CONFIG_SENSORS_APDS9921)	+= apds9921.o
-
+obj-$(CONFIG_BTP_FPC1140)	+= fpc1020_tee_legacy.o
