@@ -3364,6 +3364,10 @@ static void msm_otg_sm_work(struct work_struct *w)
 					    is_project(OPPO_15022))
 						msm_otg_notify_charger(motg,
 								2000);
+l
+					else if (is_project(OPPO_15109)||is_project(OPPO_15399))
+						msm_otg_notify_charger(motg,
+								IDEV_CHG_MIN);
 					else
 #endif
 					msm_otg_notify_charger(motg,
