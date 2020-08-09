@@ -578,9 +578,9 @@ struct msm_otg {
 	unsigned int dbg_idx;
 	rwlock_t dbg_lock;
 	char (buf[DEBUG_MAX_MSG])[DEBUG_MSG_LEN];   /* buffer */
-/*
+
 	enum usb_id_state id_state;
-*/
+
 #ifdef CONFIG_MACH_OPPO
 	struct mutex otg_mutex_lock;
 #endif
