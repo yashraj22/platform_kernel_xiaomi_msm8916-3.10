@@ -3118,7 +3118,6 @@ static enum alarmtimer_restart vddtrim_callback(struct alarm *alarm,
 	return ALARMTIMER_NORESTART;
 }
 
-/*
 static enum alarmtimer_restart batt_temp_alarm_callback(struct alarm *alarm,
 					ktime_t now)
 {
@@ -3131,7 +3130,7 @@ static enum alarmtimer_restart batt_temp_alarm_callback(struct alarm *alarm,
 
 	return ALARMTIMER_NORESTART;
 }
-*/
+
 #ifdef CONFIG_MACH_OPPO
 #define BMS_VM_BMS_DATA_REG_0			0x40B0
 void opchg_set_pmic_soc_memory(int soc)
