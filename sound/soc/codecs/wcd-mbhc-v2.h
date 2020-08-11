@@ -245,6 +245,16 @@ struct wcd_mbhc_config {
 	uint32_t linein_th;
 	struct wcd_mbhc_moisture_cfg moist_cfg;
 	bool insert_detect;
+#ifdef CONFIG_MACH_OPPO
+	/*xiang.fei@Multimedia, 2014/11/20, Add for no voice in calling*/
+	int spk_pa_en_state;
+	/*xiang.fei@Multimedia, 2014/11/20, Add end*/
+	/*xiang.fei@Multimedia, 2014/11/26, Add for pop noise*/
+	int gpio_spk_pa_en;
+	/*xiang.fei@Multimedia, 2014/11/26, Add for pop noise end*/
+	//John.Xu@PhoneSw.AudioDriver, 2015/01/09, Add for yda145 boost
+	int gpio_yda145_boost_en;
+#endif
 };
 
 struct wcd_mbhc_intr {
@@ -508,6 +518,4 @@ static inline int wcd_mbhc_get_impedance(struct wcd_mbhc *mbhc,
 }
 #endif
 void wcd_mbhc_deinit(struct wcd_mbhc *mbhc);
-extern void msm8x16_wcd_codec_set_headset_state(u32 state);
-extern int msm8x16_wcd_codec_get_headset_state(void);
 #endif /* __WCD_MBHC_V2_H__ */

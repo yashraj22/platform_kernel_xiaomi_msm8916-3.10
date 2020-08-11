@@ -421,7 +421,7 @@ void  ts4621_amp_on_l(int on, u8 gain)
     }
     return;
 }
-
+// test
 void  ts4621_amp_on_r(int on, u8 gain)
 {
 	if (on) {
@@ -542,7 +542,7 @@ static struct i2c_driver ts4621_driver = {
 static int __init ts4621_init(void)
 {
     pr_err("zp Enter %s", __func__);
-	if(is_project(OPPO_15109) || is_project(OPPO_15399))
+	if(is_project(OPPO_15109))
 	{
 		// For 15035 ,2dB
 		DEFAULT_GAIN = 0x3A;
@@ -559,7 +559,7 @@ static int __init ts4621_init(void)
 static void __exit ts4621_exit(void)
 {
     pr_err("Enter %s", __func__);
-	if(is_project(OPPO_15109) || is_project(OPPO_15399))
+	if(is_project(OPPO_15109))
 	{
 		i2c_del_driver(&ts4621_driver);
 	}
